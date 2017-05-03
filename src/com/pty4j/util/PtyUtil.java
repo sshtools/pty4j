@@ -34,6 +34,7 @@ public class PtyUtil {
    *
    * @param aclass a class to find a jar
    * @return jar containing folder path
+   * @throws Exception on any error
    */
   public static String getJarContainingFolderPath(Class<?> aclass) throws Exception {
     CodeSource codeSource = aclass.getProtectionDomain().getCodeSource();

@@ -16,19 +16,19 @@ import java.util.TreeMap;
 /**
  * Process with pseudo-terminal(PTY).
  * On Unix systems the process is created with real pseudo-terminal (PTY).
- * <p/>
+ * <p>
  * On Windows, where there is no such entity like TTY, we make an emulation: invisible console window
  * is created and all character updates are sent to output stream and all character input is requested from
  * input stream.
- * <p/>
+ * <p>
  * Note that on Unix to be sure that no file descriptors are left unclosed after process termination
  * one of two things should be accomplished:
  * 1) Streams returned by getInputStream() and getOutputStream() method should be acquired and closed
  * 2) Method destroy() should be invoked even after the process termination
- * <p/>
+ * <p>
  * See {@link UnixPtyProcess#closeUnusedStreams()} method javadoc for details.
- * <p/>
- * This behavior may change in future versions.
+ * <p>
+ * This behaviour may change in future versions.
  *
  * @author traff
  */

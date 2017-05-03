@@ -44,6 +44,9 @@ public class NamedPipe {
    * The NamedPipe object closes the given handle when it is closed.  If you
    * do not own the handle, call markClosed instead of close, or call the Win32
    * DuplicateHandle API to get a new handle.
+   * 
+   * @param handle pipe FD
+   * @param closeHandleOnFinalize close handle when finalized
    */
   public NamedPipe(WinNT.HANDLE handle, boolean closeHandleOnFinalize) {
     myHandle = handle;
@@ -67,6 +70,11 @@ public class NamedPipe {
   /**
    * Returns -1 on any kind of error, including a pipe that isn't connected or
    * a NamedPipe instance that has been closed.
+   * 
+   * @param buf buffer
+   * @param off offset
+   * @param len length
+   * @return number of bytes read
    */
   public int read(byte[] buf, int off, int len) {
     if (buf == null) {
@@ -111,6 +119,10 @@ public class NamedPipe {
 
   /**
    * This function ignores I/O errors.
+   * 
+   * @param buf buffer
+   * @param off offset
+   * @param len length
    */
   public void write(byte[] buf, int off, int len) {
     if (buf == null) {
@@ -178,6 +190,8 @@ public class NamedPipe {
    *
    * Mark the function synchronized to ensure that a later call cannot return
    * earlier.
+   * 
+   * @throws IOException on I/O error
    */
   public synchronized void close() throws IOException {
     if (!closeImpl()) {

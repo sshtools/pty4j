@@ -45,6 +45,9 @@ public class WinSize
 
   /**
    * Creates a new {@link WinSize} instance for the given columns and rows.
+   * 
+   * @param columns columns
+   * @param rows rows
    */
   public WinSize( int columns, int rows )
   {
@@ -54,6 +57,11 @@ public class WinSize
   /**
    * Creates a new {@link WinSize} instance for the given columns, rows and
    * dimensions.
+   * 
+   * @param columns columns
+   * @param rows rows
+   * @param width width
+   * @param height height
    */
   public WinSize( int columns, int rows, int width, int height )
   {

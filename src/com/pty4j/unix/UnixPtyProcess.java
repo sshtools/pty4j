@@ -24,7 +24,6 @@ public class UnixPtyProcess extends PtyProcess {
   /**
    * On Windows, what this does is far from easy to explain. Some of the logic is in the JNI code, some in the
    * spawner.exe code.
-   * <p/>
    * <ul>
    * <li>If the process this is being raised against was launched by us (the Spawner)
    * <ul>
@@ -35,7 +34,7 @@ public class UnixPtyProcess extends PtyProcess {
    * <li>If the process this is being raised against was <i>not</i> launched by us, use DebugBreakProcess to interrupt
    * it (sending a CTRL-C is easy only if we share a console with the target process)
    * </ul>
-   * <p/>
+   * <p>
    * On non-Windows, raising this just raises a POSIX SIGINT
    */
   public int INT = 2;
@@ -149,7 +148,7 @@ public class UnixPtyProcess extends PtyProcess {
 
   /**
    * See java.lang.Process#destroy ();
-   * <p/>
+   * <p>
    * Clients are responsible for explicitly closing any streams that they have requested through getErrorStream(),
    * getInputStream() or getOutputStream()
    */

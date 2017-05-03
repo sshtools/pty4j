@@ -357,6 +357,7 @@ public class PtyHelpers {
    * @param stat    an array of 1 integer in which the status of the process is
    *                stored;
    * @param options the bit mask with options.
+   * @return status
    */
   public static int waitpid(int pid, int[] stat, int options) {
     return myOsFacade.waitpid(pid, stat, options);

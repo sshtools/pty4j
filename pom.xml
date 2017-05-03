@@ -17,6 +17,7 @@
 		<maven.surefire.plugin>2.12</maven.surefire.plugin>
 		<maven.taglist.plugin>2.4</maven.taglist.plugin>
 		<maven.versions.plugin>2.3</maven.versions.plugin>
+		<maven.findbugs.plugin>3.0.4</maven.findbugs.plugin>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		
@@ -78,13 +79,14 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
 				<executions>
 					<execution>
 						<id>make-a-jar</id>
 						<phase>compile</phase>
-						<goals>
+						<!-- <goals>
 							<goal>jar</goal>
-						</goals>
+						</goals> -->
 						<configuration>
 							<finalName>${project.artifactId}-${project.version}-natives</finalName>
 							<classesDirectory>${basedir}/os</classesDirectory>
