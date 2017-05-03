@@ -1,5 +1,6 @@
 package com.pty4j.windows;
 
+import com.pty4j.Lib;
 import com.pty4j.PtyException;
 import com.pty4j.WinSize;
 import com.pty4j.util.PtyUtil;
@@ -290,16 +291,7 @@ public class WinPty {
     int GetCurrentProcessId();
   }
 
-  public static WinPtyLib INSTANCE = (WinPtyLib)Native.loadLibrary(getLibraryPath(), WinPtyLib.class);
-
-  private static String getLibraryPath() {
-    try {
-      return PtyUtil.resolveNativeLibrary().getAbsolutePath();
-    }
-    catch (Exception e) {
-      throw new IllegalStateException("Couldn't detect jar containing folder", e);
-    }
-  }
+  public static WinPtyLib INSTANCE = (WinPtyLib)Native.loadLibrary(Lib.locateLibrary(), WinPtyLib.class);
 
   interface WinPtyLib extends Library {
     /*

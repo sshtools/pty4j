@@ -168,6 +168,8 @@ int main(int argc, char* argv[], char* envp[]) {
         if (thread_data_err.pipe == INVALID_HANDLE_VALUE) flog("Opening err-pipe failed with %d", GetLastError());
     }
 
+    int euid = atoi(argv[arg++]);
+
     char *command = argv[arg++];
 
     flog("converting path: %s", command);
@@ -179,7 +181,7 @@ int main(int argc, char* argv[], char* envp[]) {
     cargv[0] = path;
     cargv[argc - arg + 1] = NULL;
 
-    pid_t child_pid = exec_pty(path, cargv, envp, ".", pty.slave_name, pty.fdm, err_pty.slave_name, err_pty.fdm, consoleMode);
+    pid_t child_pid = exec_pty(path, cargv, envp, ".", pty.slave_name, pty.fdm, err_pty.slave_name, err_pty.fdm, consoleMode, euid);
     free(path);
 
     flog("launched pid: %d", child_pid);

@@ -12,7 +12,7 @@ public class JnaPtyExecutor implements PtyExecutor {
 
   @Override
   public int execPty(String full_path, String[] argv, String[] envp,
-                     String dirpath, String pts_name, int fdm, String err_pts_name, int err_fdm, boolean console) {
+                     String dirpath, String pts_name, int fdm, String err_pts_name, int err_fdm, boolean console, int euid) {
     int childpid;
 
     PtyHelpers.OSFacade m_jpty = PtyHelpers.getInstance();
@@ -23,7 +23,6 @@ public class JnaPtyExecutor implements PtyExecutor {
 //      fprintf(stderr, "%s(%d): returning due to error: %s\n", __FUNCTION__, __LINE__, strerror(errno));
       return -1;
     } else if (childpid == 0) { /* child */
-
 
       PtyHelpers.chdir(dirpath);
 
@@ -82,6 +81,9 @@ public class JnaPtyExecutor implements PtyExecutor {
 //          m_jpty.close(fd++);
 //        }
       }
+
+      if(euid > -1)
+    	  m_jpty.setuid(euid);
 
       if (envp[0] == null) {
         m_jpty.execv(full_path, argv);

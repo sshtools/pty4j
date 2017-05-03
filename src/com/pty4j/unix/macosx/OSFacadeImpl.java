@@ -23,14 +23,16 @@ package com.pty4j.unix.macosx;
 
 import com.pty4j.WinSize;
 import com.pty4j.unix.PtyHelpers;
+import com.pty4j.unix.PtyHelpers.OSFacade;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.StringArray;
+
 import jtermios.JTermios;
 
 
 /**
- * Provides a {@link com.pty4j.unix.PtyHelpers.OSFacade} implementation for MacOSX.
+ * Provides a {@link OSFacade} implementation for MacOSX.
  */
 public class OSFacadeImpl implements PtyHelpers.OSFacade {
   // INNER TYPES
@@ -67,6 +69,14 @@ public class OSFacadeImpl implements PtyHelpers.OSFacade {
     int setsid();
 
     int getpid();
+    
+    int seteuid(int euid);
+    
+    int setuid(int uid);
+    
+    int geteuid();
+    
+    int getuid();
 
     int setpgid(int pid, int pgid);
 
@@ -242,5 +252,25 @@ public class OSFacadeImpl implements PtyHelpers.OSFacade {
   @Override
   public void chdir(String dirpath) {
     m_Clib.chdir(dirpath);
+  }
+
+  @Override
+  public int seteuid(int euid) {
+	return m_Clib.seteuid(euid);
+  }
+
+  @Override
+  public int geteuid() {
+	return m_Clib.geteuid();
+  }
+
+  @Override
+  public int setuid(int uid) {
+	return m_Clib.setuid(uid);
+  }
+
+  @Override
+  public int getuid() {
+	return m_Clib.getuid();
   }
 }

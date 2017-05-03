@@ -33,7 +33,7 @@ public class CygwinPtyProcess extends PtyProcess {
   private final WinNT.HANDLE myOutputHandle;
   private final WinNT.HANDLE myErrorHandle;
 
-  public CygwinPtyProcess(String[] command, Map<String, String> environment, String workingDirectory, File logFile, boolean console)
+  public CygwinPtyProcess(String[] command, Map<String, String> environment, String workingDirectory, File logFile, boolean console, int euid)
     throws IOException {
     String pipePrefix = String.format("\\\\.\\pipe\\cygwinpty-%d-%d-", KERNEL32.GetCurrentProcessId(), processCounter.getAndIncrement());
     String inPipeName = pipePrefix + "in";
@@ -56,7 +56,7 @@ public class CygwinPtyProcess extends PtyProcess {
     myOutputPipe = new NamedPipe(myOutputHandle, false);
     myErrorPipe = myErrorHandle != null ? new NamedPipe(myErrorHandle, false) : null;
 
-    myProcess = startProcess(inPipeName, outPipeName, errPipeName, workingDirectory, command, environment, logFile, console);
+    myProcess = startProcess(inPipeName, outPipeName, errPipeName, workingDirectory, command, environment, logFile, console, euid);
   }
 
   private Process startProcess(String inPipeName,
@@ -66,7 +66,8 @@ public class CygwinPtyProcess extends PtyProcess {
                                String[] command,
                                Map<String, String> environment,
                                File logFile,
-                               boolean console) throws IOException {
+                               boolean console,
+                               int euid) throws IOException {
     File nativeFile;
     try {
       nativeFile = PtyUtil.resolveNativeFile("cyglaunch.exe");
@@ -75,7 +76,7 @@ public class CygwinPtyProcess extends PtyProcess {
     }
     String logPath = logFile == null ? "null" : logFile.getAbsolutePath();
     ProcessBuilder processBuilder =
-      new ProcessBuilder(nativeFile.getAbsolutePath(), logPath, console ? "1" : "0", inPipeName, outPipeName, errPipeName);
+      new ProcessBuilder(nativeFile.getAbsolutePath(), logPath, console ? "1" : "0", inPipeName, outPipeName, errPipeName, String.valueOf(euid));
     for (String s : command) {
       processBuilder.command().add(s);
     }

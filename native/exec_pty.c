@@ -18,7 +18,9 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include <grp.h>
 #include "exec_pty.h"
+#include <sys/stat.h>
 
 int test();
 
@@ -33,9 +35,10 @@ extern void set_noecho(int fd);
 
 
 pid_t exec_pty(const char *path, char *const argv[], char *const envp[], const char *dirpath,
-		       const char *pts_name, int fdm, const char *err_pts_name, int err_fdm, int console)
+		       const char *pts_name, int fdm, const char *err_pts_name, int err_fdm, int console, uid_t euid)
 {
 	pid_t childpid;
+	uid_t  ruid;
 	char *full_path;
 
 	/*
@@ -54,7 +57,19 @@ pid_t exec_pty(const char *path, char *const argv[], char *const envp[], const c
 		fprintf(stderr, "%s(%d): returning due to error: %s\n", __FUNCTION__, __LINE__, strerror(errno));
 		free(full_path);
 		return -1;
-	} else if (childpid == 0) { /* child */
+	} else if (childpid == 0) {
+
+		/* child */
+
+		if(!console && euid > 0) {
+			gid_t gid = getgrnam("tty");
+			if (chown(pts_name, euid, gid) != 0 ||
+					    chmod(pts_name, S_IRUSR | S_IWUSR | S_IWGRP) != 0) {
+				fprintf(stderr, "%s(%d): failed to chown or chmod %s. %s\n", __FUNCTION__, __LINE__, pts_name, strerror(errno));
+				free(full_path);
+				return -1;
+			}
+		}
 
 		chdir(dirpath);
 
@@ -107,6 +122,17 @@ pid_t exec_pty(const char *path, char *const argv[], char *const envp[], const c
 
 			while (fd < fdlimit)
 				close(fd++);
+		}
+
+
+
+		if(!console && euid > 0) {
+			int status;
+			status = setuid (euid);
+			if (status < 0) {
+				perror("seteuid()");
+				return -1;
+			}
 		}
 
 		execve(full_path, argv, envp);

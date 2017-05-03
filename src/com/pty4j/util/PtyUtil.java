@@ -33,9 +33,9 @@ public class PtyUtil {
    * Returns the folder that contains a jar that contains the class
    *
    * @param aclass a class to find a jar
-   * @return
+   * @return jar containing folder path
    */
-  public static String getJarContainingFolderPath(Class aclass) throws Exception {
+  public static String getJarContainingFolderPath(Class<?> aclass) throws Exception {
     CodeSource codeSource = aclass.getProtectionDomain().getCodeSource();
 
     File jarFile;
@@ -62,7 +62,7 @@ public class PtyUtil {
       return PTY_LIB_FOLDER;
     }
     //Class aclass = WinPty.class.getClassLoader().loadClass("com.jediterm.pty.PtyMain");
-    Class aclass = WinPty.class;
+    Class<?> aclass = WinPty.class;
 
     return getJarContainingFolderPath(aclass);
   }

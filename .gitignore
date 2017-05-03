@@ -2,3 +2,11 @@ bin
 bin_test
 generated
 
+/target/
+/classes/
+/.settings/
+/.classpath
+/.project
+/classes/
+/.settings/
+/target/

@@ -23,6 +23,7 @@ package com.pty4j.unix.freebsd;
 
 import com.pty4j.WinSize;
 import com.pty4j.unix.PtyHelpers;
+import com.pty4j.unix.PtyHelpers.OSFacade;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
@@ -32,7 +33,7 @@ import jtermios.JTermios;
 
 
 /**
- * Provides a {@link PtyHelpers.OSFacade} implementation for FreeBSD.
+ * Provides a {@link OSFacade} implementation for FreeBSD.
  */
 public class OSFacadeImpl implements PtyHelpers.OSFacade {
   // INNER TYPES
@@ -69,6 +70,14 @@ public class OSFacadeImpl implements PtyHelpers.OSFacade {
     int fork();
 
     int setsid();
+    
+    int seteuid(int suid);
+    
+    int setuid(int suid);
+    
+    int geteuid();
+    
+    int getuid();
 
     int getpid();
 
@@ -251,5 +260,24 @@ public class OSFacadeImpl implements PtyHelpers.OSFacade {
   @Override
   public void chdir(String dirpath) {
     m_Clib.chdir(dirpath);
+  }
+  @Override
+  public int seteuid(int euid) {
+	return m_Clib.seteuid(euid);
+  }
+
+  @Override
+  public int geteuid() {
+	return m_Clib.geteuid();
+  }
+
+  @Override
+  public int setuid(int uid) {
+	return m_Clib.seteuid(uid);
+  }
+
+  @Override
+  public int getuid() {
+	return m_Clib.getuid();
   }
 }

@@ -29,11 +29,12 @@ import com.sun.jna.Platform;
 import com.sun.jna.Structure;
 import jtermios.JTermios;
 import jtermios.Termios;
-import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -41,7 +42,8 @@ import java.util.List;
  * emulating such system calls on non POSIX systems.
  */
 public class PtyHelpers {
-  private static final Logger LOG = Logger.getLogger(PtyHelpers.class);
+	
+	final static Logger LOG = Logger.getLogger("PtyHelpers");
 
   /**
    * Provides a OS-specific interface to the PtyHelpers methods.
@@ -114,6 +116,14 @@ public class PtyHelpers {
     int unlockpt(int fdm);
 
     int close(int fdm);
+
+    int seteuid(int euid);
+
+    int setuid(int euid);
+    
+    int geteuid();
+    
+    int getuid();
 
     String ptsname(int fdm);
 
@@ -220,20 +230,29 @@ public class PtyHelpers {
   private static PtyExecutor myPtyExecutor;
 
   static {
-    try {
-      File lib = PtyUtil.resolveNativeLibrary();
-
-      myPtyExecutor = new NativePtyExecutor(lib.getAbsolutePath());
-    }
-    catch (Exception e) {
-      LOG.error("Can't load native pty executor library", e);
-      myPtyExecutor = null;
-    }
+	try {
+	  /* First look for NarSystem in com.pty4j. This would mean the library is being loaded from
+	  * a Maven dependency with NAR support.
+	  */
+	  myPtyExecutor = new SelfExtractingPtyExecutor();
+	}
+	catch(Exception e) {
+		e.printStackTrace();
+	    try {
+	      File lib = PtyUtil.resolveNativeLibrary();
+	      myPtyExecutor = new NativePtyExecutor(lib.getAbsolutePath());
+	    }
+	    catch (Exception e2) {
+	      LOG.log(Level.SEVERE, "Can't load native pty executor library", e2);
+	      myPtyExecutor = null;
+	    }
+	}
     
     if (myPtyExecutor == null) {
-      LOG.warn("Using JNA version of PtyExecutor");
+      LOG.warning("Using JNA version of PtyExecutor");
       myPtyExecutor = new JnaPtyExecutor();
     }
+    
   }
 
   public static OSFacade getInstance() {
@@ -404,8 +423,9 @@ public class PtyHelpers {
                             int fdm,
                             String err_pts_name,
                             int err_fdm,
-                            boolean console) {
-    return myPtyExecutor.execPty(full_path, argv, envp, dirpath, pts_name, fdm, err_pts_name, err_fdm, console);
+                            boolean console,
+                            int euid) {
+    return myPtyExecutor.execPty(full_path, argv, envp, dirpath, pts_name, fdm, err_pts_name, err_fdm, console, euid);
   }
 
   public static class winsize extends Structure {

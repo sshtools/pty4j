@@ -5,5 +5,5 @@ package com.pty4j.unix;
  */
 public interface PtyExecutor {
   int execPty(String full_path, String[] argv, String[] envp,
-              String dirpath, String pts_name, int fdm, String err_pts_name, int err_fdm, boolean console);
+              String dirpath, String pts_name, int fdm, String err_pts_name, int err_fdm, boolean console, int euid);
 }

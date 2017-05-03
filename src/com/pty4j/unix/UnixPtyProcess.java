@@ -57,7 +57,7 @@ public class UnixPtyProcess extends PtyProcess {
   private Pty myPty;
   private Pty myErrPty;
 
-  public UnixPtyProcess(String[] cmdarray, String[] envp, String dir, Pty pty, Pty errPty) throws IOException {
+  public UnixPtyProcess(String[] cmdarray, String[] envp, String dir, Pty pty, Pty errPty, int euid) throws IOException {
     if (dir == null) {
       dir = ".";
     }
@@ -66,7 +66,7 @@ public class UnixPtyProcess extends PtyProcess {
     }
     myPty = pty;
     myErrPty = errPty;
-    execInPty(cmdarray, envp, dir, pty, errPty);
+    execInPty(cmdarray, envp, dir, pty, errPty, euid);
   }
 
   public Pty getPty() {
@@ -201,7 +201,7 @@ public class UnixPtyProcess extends PtyProcess {
     return (Pty.raise(pid, NOOP) == 0);
   }
 
-  private void execInPty(String[] command, String[] environment, String workingDirectory, Pty pty, Pty errPty) throws IOException {
+  private void execInPty(String[] command, String[] environment, String workingDirectory, Pty pty, Pty errPty, int euid) throws IOException {
     String cmd = command[0];
     SecurityManager s = System.getSecurityManager();
     if (s != null) {
@@ -216,7 +216,7 @@ public class UnixPtyProcess extends PtyProcess {
     final int errMasterFD = errPty == null ? -1 : errPty.getMasterFD();
     final boolean console = pty.isConsole();
     // int fdm = pty.get
-    Reaper reaper = new Reaper(command, environment, workingDirectory, slaveName, masterFD, errSlaveName, errMasterFD, console);
+    Reaper reaper = new Reaper(command, environment, workingDirectory, slaveName, masterFD, errSlaveName, errMasterFD, console, euid);
 
     reaper.setDaemon(true);
     reaper.start();
@@ -282,7 +282,7 @@ public class UnixPtyProcess extends PtyProcess {
   }
 
   int exec(String[] cmd, String[] envp, String dirname, String slaveName, int masterFD,
-           String errSlaveName, int errMasterFD, boolean console) throws IOException {
+           String errSlaveName, int errMasterFD, boolean console, int euid) throws IOException {
     int pid = -1;
 
     if (cmd == null) {
@@ -293,7 +293,7 @@ public class UnixPtyProcess extends PtyProcess {
       return pid;
     }
 
-    return PtyHelpers.execPty(cmd[0], cmd, envp, dirname, slaveName, masterFD, errSlaveName, errMasterFD, console);
+    return PtyHelpers.execPty(cmd[0], cmd, envp, dirname, slaveName, masterFD, errSlaveName, errMasterFD, console, euid);
   }
 
   int waitFor(int processID) {
@@ -329,9 +329,10 @@ public class UnixPtyProcess extends PtyProcess {
     private int myErrMasterFD;
     private boolean myConsole;
     volatile Throwable myException;
+	private int myEuid;
 
     public Reaper(String[] command, String[] environment, String workingDirectory, String slaveName, int masterFD, String errSlaveName,
-                  int errMasterFD, boolean console) {
+                  int errMasterFD, boolean console, int euid) {
       super("PtyProcess Reaper");
       myCommand = command;
       myEnv = environment;
@@ -342,16 +343,17 @@ public class UnixPtyProcess extends PtyProcess {
       myErrMasterFD = errMasterFD;
       myConsole = console;
       myException = null;
+      myEuid = euid;
     }
 
-    int execute(String[] cmd, String[] env, String dir) throws IOException {
-      return exec(cmd, env, dir, mySlaveName, myMasterFD, myErrSlaveName, myErrMasterFD, myConsole);
+    int execute(String[] cmd, String[] env, String dir, int euid) throws IOException {
+      return exec(cmd, env, dir, mySlaveName, myMasterFD, myErrSlaveName, myErrMasterFD, myConsole, myEuid);
     }
 
     @Override
     public void run() {
       try {
-        pid = execute(myCommand, myEnv, myDir);
+        pid = execute(myCommand, myEnv, myDir, myEuid);
       }
       catch (Exception e) {
         pid = -1;

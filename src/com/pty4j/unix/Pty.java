@@ -7,14 +7,16 @@
  *******************************************************************************/
 package com.pty4j.unix;
 
-import com.pty4j.WinSize;
-import com.pty4j.util.Pair;
-import jtermios.FDSet;
-import jtermios.JTermios;
-import jtermios.Termios;
-
 import java.io.IOException;
 import java.util.Locale;
+
+import com.pty4j.WinSize;
+import com.pty4j.util.Pair;
+
+import jtermios.JTermios;
+import jtermios.JTermios.FDSet;
+import jtermios.Pollfd;
+import jtermios.Termios;
 
 
 /**
@@ -321,14 +323,20 @@ public class Pty {
 
   private static boolean poll(int pipeFd, int fd) {
     // each {int, short, short} structure is represented by two ints
-    int[] poll_fds = new int[]{pipeFd, JTermios.POLLIN, fd, JTermios.POLLIN};
+    Pollfd ppipefd = new Pollfd();
+    ppipefd.fd = pipeFd;
+    ppipefd.events = JTermios.POLLIN;
+    Pollfd pfd = new Pollfd();
+    pfd.fd = fd;
+    pfd.events = JTermios.POLLIN;
+    Pollfd[] poll_fds = new Pollfd[] { ppipefd, pfd } ; 
     while (true) {
       if (JTermios.poll(poll_fds, 2, -1) > 0) break;
 
       int errno = JTermios.errno();
       if (errno != JTermios.EAGAIN && errno != JTermios.EINTR) return false;
     }
-    return ((poll_fds[3] >> 16) & JTermios.POLLIN) != 0;
+    return ((poll_fds[1].revents >> 16) & JTermios.POLLIN) != 0;
   }
 
   private static boolean select(int pipeFd, int fd) {

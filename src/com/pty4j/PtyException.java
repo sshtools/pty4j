@@ -25,12 +25,13 @@ package com.pty4j;
  * Exception instance for PtyHelpers specific exceptions.
  */
 public class PtyException extends Exception {
-  /**
+  private static final long serialVersionUID = 5229889027457748856L;
+
+/**
    * Creates a new {@link PtyException} instance with the given message and
    * error number.
    *
    * @param message the message for this exception, can be <code>null</code>;
-   * @param errno   the error number providing more details on the exact problem.
    */
   public PtyException(String message) {
     super(message);
