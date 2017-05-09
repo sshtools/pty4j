@@ -177,7 +177,7 @@
 						</goals>
 						<configuration>
 							<classifier>natives</classifier>
-							<finalName>${project.artifactId}-${project.version}-natives</finalName>
+							<!-- <finalName>${project.artifactId}-${project.version}-natives</finalName> -->
 							<classesDirectory>${basedir}/os</classesDirectory>
 							<includes>
 								<include>**/*</include>
@@ -187,7 +187,7 @@
 				</executions>
 			</plugin>
 
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
 				<version>1.7</version>
@@ -209,7 +209,7 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
@@ -320,7 +320,7 @@
 					<plugin>
 						<groupId>com.github.maven-nar</groupId>
 						<artifactId>nar-maven-plugin</artifactId>
-						<version>3.2.3</version>
+						<version>3.5.1</version>
 						<extensions>true</extensions>
 
 						<executions>
