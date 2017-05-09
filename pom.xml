@@ -176,6 +176,7 @@
 							<goal>jar</goal>
 						</goals>
 						<configuration>
+							<classifier>natives</classifier>
 							<finalName>${project.artifactId}-${project.version}-natives</finalName>
 							<classesDirectory>${basedir}/os</classesDirectory>
 							<includes>
