@@ -171,10 +171,10 @@
 				<executions>
 					<execution>
 						<id>make-a-jar</id>
-						<phase>compile</phase>
-						<!-- <goals>
+						<phase>package</phase>
+						<goals>
 							<goal>jar</goal>
-						</goals> -->
+						</goals>
 						<configuration>
 							<finalName>${project.artifactId}-${project.version}-natives</finalName>
 							<classesDirectory>${basedir}/os</classesDirectory>
@@ -215,7 +215,7 @@
 				<version>1.6.7</version>
 				<extensions>true</extensions>
 				<configuration>
-					<serverId>ossrh</serverId>
+					<serverId>ossrh-sshtools</serverId>
 					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
 					<autoReleaseAfterClose>true</autoReleaseAfterClose>
 				</configuration>
