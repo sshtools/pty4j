@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -31,7 +32,7 @@
 	<groupId>com.sshtools</groupId>
 	<artifactId>pty4j</artifactId>
 	<packaging>jar</packaging>
-	<version>0.7.2-SSHTOOLS-SNAPSHOT</version>
+	<version>0.7.2-SSHTOOLS</version>
 	<name>PtyJ</name>
 	<url>${sitesUrl}/${project.groupId}.${project.artifactId}</url>
 
@@ -39,7 +40,7 @@
 		<url>https://github.com/sshtools/pty4j</url>
 		<connection>scm:git:https://github.com/sshtools/pty4j.git</connection>
 	</scm>
-	
+
 	<developers>
 		<developer>
 			<id>brett</id>
@@ -54,7 +55,7 @@
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
-	
+
 	<reporting>
 		<plugins>
 			<plugin>
@@ -100,28 +101,15 @@
 					<outputDirectory>%{project.reporting.outputDirectory}/cobertura</outputDirectory>
 				</configuration>
 			</plugin>
-			<!-- <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<version>${maven.pmd.plugin}</version>
-				<configuration>
-					<aggregate>true</aggregate>
-					<sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
-					The minimum tokens before a violation
-					<minimumTokens>100</minimumTokens>
-					Turn off if no xref report
-					<linkXRef>true</linkXRef>
-					<verbose>true</verbose>
-					<targetJdk>${java.version}</targetJdk>
-					<rulesets>
-						<ruleset>/rulesets/maven.xml</ruleset>
-						<ruleset>/rulesets/migrating_to_junit4.xml</ruleset>
-						<ruleset>/rulesets/design.xml</ruleset>
-						<ruleset>/rulesets/unusedcode.xml</ruleset>
-						<ruleset>/rulesets/typeresolution.xml</ruleset>
-					</rulesets>
-				</configuration>
-			</plugin> -->
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-pmd-plugin</artifactId> 
+				<version>${maven.pmd.plugin}</version> <configuration> <aggregate>true</aggregate> 
+				<sourceEncoding>${project.build.sourceEncoding}</sourceEncoding> The minimum 
+				tokens before a violation <minimumTokens>100</minimumTokens> Turn off if 
+				no xref report <linkXRef>true</linkXRef> <verbose>true</verbose> <targetJdk>${java.version}</targetJdk> 
+				<rulesets> <ruleset>/rulesets/maven.xml</ruleset> <ruleset>/rulesets/migrating_to_junit4.xml</ruleset> 
+				<ruleset>/rulesets/design.xml</ruleset> <ruleset>/rulesets/unusedcode.xml</ruleset> 
+				<ruleset>/rulesets/typeresolution.xml</ruleset> </rulesets> </configuration> 
+				</plugin> -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
@@ -187,29 +175,12 @@
 				</executions>
 			</plugin>
 
-			<!-- <plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<id>attach-native-artifacts</id>
-						<phase>package</phase>
-						<goals>
-							<goal>attach-artifact</goal>
-						</goals>
-						<configuration>
-							<artifacts>
-								<artifact>
-									<classifier>natives</classifier>
-									<file>target/${project.artifactId}-${project.version}-natives.jar</file>
-									<type>jar</type>
-								</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin> -->
+			<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>build-helper-maven-plugin</artifactId> 
+				<version>1.7</version> <executions> <execution> <id>attach-native-artifacts</id> 
+				<phase>package</phase> <goals> <goal>attach-artifact</goal> </goals> <configuration> 
+				<artifacts> <artifact> <classifier>natives</classifier> <file>target/${project.artifactId}-${project.version}-natives.jar</file> 
+				<type>jar</type> </artifact> </artifacts> </configuration> </execution> </executions> 
+				</plugin> -->
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
@@ -221,7 +192,7 @@
 					<autoReleaseAfterClose>true</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
@@ -238,6 +209,20 @@
 				<configuration>
 					<encoding>UTF-8</encoding>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -308,6 +293,27 @@
 	</dependencies>
 
 	<profiles>
+		<profile>
+			<id>release-sign-artifacts</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>mac</id>
 			<activation>
