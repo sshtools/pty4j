@@ -323,6 +323,10 @@
 		<profile>
 			<id>mac</id>
 			<activation>
+				<property>
+					<name>build.natives</name>
+					<value>true</value>
+				</property>
 				<os>
 					<name>mac os x</name>
 				</os>
@@ -472,6 +476,10 @@
 		<profile>
 			<id>linux-amd64</id>
 			<activation>
+				<property>
+					<name>build.natives</name>
+					<value>true</value>
+				</property>
 				<os>
 					<family>linux</family>
 					<arch>amd64</arch>
@@ -564,6 +572,10 @@
 		<profile>
 			<id>linux-i386</id>
 			<activation>
+				<property>
+					<name>build.natives</name>
+					<value>true</value>
+				</property>
 				<os>
 					<family>linux</family>
 					<arch>i386</arch>
