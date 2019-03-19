@@ -474,6 +474,7 @@
 			<activation>
 				<os>
 					<family>linux</family>
+					<arch>amd64</arch>
 				</os>
 			</activation>
 			<build>
@@ -508,6 +509,75 @@
 							</execution>
 
 
+							<execution>
+								<id>compile-native-i386</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>nar-compile</goal>
+								</goals>
+								<configuration>
+									<architecture>i386</architecture>
+									<libraries>
+										<library>
+											<type>shared</type>
+										</library>
+									</libraries>
+									<c>
+										<sourceDirectory>native</sourceDirectory>
+										<includes>
+											<include>*.c</include>
+										</includes>
+									</c>
+								</configuration>
+							</execution>
+
+
+						</executions>
+
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+
+						<executions>
+							<execution>
+								<id>copy-linux-natives</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<copy tofile="${basedir}/os/linux/x86/libpty.so"
+											file="${basedir}/target/nar/${project.artifactId}-${project.version}-i386-Linux-gpp-shared/lib/i386-Linux-gpp/shared/lib${project.artifactId}-${project.version}.so" />
+										<copy tofile="${basedir}/os/linux/x86_64/libpty.so"
+											file="${basedir}/target/nar/${project.artifactId}-${project.version}-amd64-Linux-gpp-shared/lib/amd64-Linux-gpp/shared/lib${project.artifactId}-${project.version}.so" />
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>linux</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>i386</arch>
+				</os>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.github.maven-nar</groupId>
+						<artifactId>nar-maven-plugin</artifactId>
+						<version>3.5.1</version>
+						<extensions>true</extensions>
+
+						<executions>
 							<execution>
 								<id>compile-native-i386</id>
 								<phase>compile</phase>
