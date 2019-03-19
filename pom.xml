@@ -470,7 +470,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>linux</id>
+			<id>linux-amd64</id>
 			<activation>
 				<os>
 					<family>linux</family>
@@ -562,7 +562,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>linux</id>
+			<id>linux-i386</id>
 			<activation>
 				<os>
 					<family>linux</family>
