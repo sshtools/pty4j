@@ -65,13 +65,15 @@ public class Pair<A, B> {
     return true;
   }
 
-  public int hashCode() {
+  @Override
+public int hashCode() {
     int result = first != null ? first.hashCode() : 0;
     result = 31 * result + (second != null ? second.hashCode() : 0);
     return result;
   }
 
-  public String toString() {
+  @Override
+public String toString() {
     return "<" + first + "," + second + ">";
   }
 }

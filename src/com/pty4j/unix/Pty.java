@@ -7,16 +7,13 @@
  *******************************************************************************/
 package com.pty4j.unix;
 
+
 import java.io.IOException;
 import java.util.Locale;
 
 import com.pty4j.WinSize;
 import com.pty4j.util.Pair;
-
-import jtermios.JTermios;
-import jtermios.JTermios.FDSet;
-import jtermios.Pollfd;
-import jtermios.Termios;
+import com.sun.jna.Native;
 
 
 /**
@@ -65,7 +62,7 @@ public class Pty {
 
     myIn = new PTYInputStream(this);
     myOut = new PTYOutputStream(this);
-    JTermios.pipe(myPipe);
+    PtyHelpers.getInstance().pipe(myPipe);
   }
 
   public String getSlaveName() {
@@ -113,7 +110,7 @@ public class Pty {
     try {
       int res = changeWindowSize(myMaster, winSize);
       if (res != 0) {
-        throw new IllegalStateException("Can set new window size. ioctl returns " + res + ", errorno=" + JTermios.errno());
+        throw new IllegalStateException("Can set new window size. ioctl returns " + res + ", errorno=" + Native.getLastError());
       }
     } catch (UnsatisfiedLinkError e) {
       if (!setTerminalSizeErrorAlreadyLogged) {
@@ -177,18 +174,18 @@ public class Pty {
 
   public static void setNoEcho(int fd) {
     Termios stermios = new Termios();
-    if (JTermios.tcgetattr(fd, stermios) < 0) {
+    if (PtyHelpers.getInstance().tcgetattr(fd, stermios) < 0) {
       return;
     }
 
 	/* turn off echo */
-    stermios.c_lflag &= ~(JTermios.ECHO | JTermios.ECHOE | PtyHelpers.ECHOK | JTermios.ECHONL);
+    stermios.c_lflag &= ~(PtyHelpers.ECHO | PtyHelpers.ECHOE | PtyHelpers.ECHOK | PtyHelpers.ECHONL);
     /* Turn off the NL to CR/NL mapping ou output.  */
     /*stermios.c_oflag &= ~(ONLCR);*/
 
-    stermios.c_iflag |= (JTermios.IGNCR);
+    stermios.c_iflag |= (PtyHelpers.IGNCR);
 
-    JTermios.tcsetattr(fd, JTermios.TCSANOW, stermios);
+    PtyHelpers.getInstance().tcsetattr(fd, PtyHelpers.TCSANOW, stermios);
   }
 
   private Pair<Integer, String> openMaster(boolean console) {
@@ -252,13 +249,13 @@ public class Pty {
   }
 
   private int close0(int fd) throws IOException {
-    int ret = JTermios.close(fd);
+    int ret = PtyHelpers.getInstance().close(fd);
 
     breakRead();
 
     synchronized (mySelectLock) {
-      JTermios.close(myPipe[0]);
-      JTermios.close(myPipe[1]);
+      PtyHelpers.getInstance().close(myPipe[0]);
+      PtyHelpers.getInstance().close(myPipe[1]);
       myPipe[0] = -1;
       myPipe[1] = -1;
     }
@@ -267,7 +264,7 @@ public class Pty {
   }
 
   void breakRead() {
-    JTermios.write(myPipe[1], new byte[1], 1);
+	  PtyHelpers.getInstance().write(myPipe[1], new byte[1], 1);
   }
 
   public static int wait0(int pid) {
@@ -281,7 +278,7 @@ public class Pty {
 
     for (; ; ) {
       if (m_jpty.waitpid(pid, status, 0) < 0) {
-        if (JTermios.errno() == JTermios.EINTR) {
+        if (Native.getLastError() == PtyHelpers.EINTR) {
           // interrupted system call - retry
           continue;
         }
@@ -318,39 +315,39 @@ public class Pty {
       haveBytes = useSelect ? select(myPipe[0], fd) : poll(myPipe[0], fd);
     }
 
-    return haveBytes ? JTermios.read(fd, buf, len) : -1;
+    return haveBytes ? PtyHelpers.getInstance().read(fd, buf, len) : -1;
   }
 
   private static boolean poll(int pipeFd, int fd) {
     // each {int, short, short} structure is represented by two ints
     Pollfd ppipefd = new Pollfd();
     ppipefd.fd = pipeFd;
-    ppipefd.events = JTermios.POLLIN;
+    ppipefd.events = PtyHelpers.POLLIN;
     Pollfd pfd = new Pollfd();
     pfd.fd = fd;
-    pfd.events = JTermios.POLLIN;
+    pfd.events = PtyHelpers.POLLIN;
     Pollfd[] poll_fds = new Pollfd[] { ppipefd, pfd } ; 
     while (true) {
-      if (JTermios.poll(poll_fds, 2, -1) > 0) break;
+			if (PtyHelpers.getInstance().poll(poll_fds, 2, -1) > 0) break;
 
-      int errno = JTermios.errno();
-      if (errno != JTermios.EAGAIN && errno != JTermios.EINTR) return false;
+      int errno = Native.getLastError();
+      if (errno != PtyHelpers.EAGAIN && errno != PtyHelpers.EINTR) return false;
     }
-    return ((poll_fds[1].revents >> 16) & JTermios.POLLIN) != 0;
+    return ((poll_fds[1].revents >> 16) & PtyHelpers.POLLIN) != 0;
   }
 
   private static boolean select(int pipeFd, int fd) {
-    FDSet set = JTermios.newFDSet();
+    FDSet set = PtyHelpers.getInstance().newFDSet();
 
-    JTermios.FD_SET(pipeFd, set);
-    JTermios.FD_SET(fd, set);
-    JTermios.select(Math.max(fd, pipeFd) + 1, set, null, null, null);
+    PtyHelpers.FD_SET(pipeFd, set);
+    PtyHelpers.FD_SET(fd, set);
+    PtyHelpers.getInstance().select(Math.max(fd, pipeFd) + 1, set, null, null, null);
 
-    return JTermios.FD_ISSET(fd, set);
+    return PtyHelpers.FD_ISSET(fd, set);
   }
 
   int write(byte[] buf, int len) throws IOException {
-    return JTermios.write(myMaster, buf, len);
+    return PtyHelpers.getInstance().write(myMaster, buf, len);
   }
 
 }

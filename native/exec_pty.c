@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     QNX Software Systems - initial API and implementation
- *     Wind River Systems, Inc.  
+ *     Wind River Systems, Inc.
  *     Mikhail Zabaluev (Nokia) - bug 82744
  *     Mikhail Sennikovsky - bug 145737
  *******************************************************************************/
@@ -17,10 +17,10 @@
 #include <errno.h>
 #include <string.h>
 #include <stdbool.h>
-
-#include <grp.h>
 #include "exec_pty.h"
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <grp.h>
 
 int test();
 
@@ -32,19 +32,19 @@ extern char *pfind(const char *name, char * const envp[]);
 extern int ptys_open(int fdm, const char *pts_name, bool acquire);
 
 extern void set_noecho(int fd);
+extern void set_tty(int fd);
 
 
 pid_t exec_pty(const char *path, char *const argv[], char *const envp[], const char *dirpath,
-		       const char *pts_name, int fdm, const char *err_pts_name, int err_fdm, int console, uid_t euid)
+		       const char *pts_name, int fdm, const char *err_pts_name, int err_fdm, int console, int euid)
 {
 	pid_t childpid;
-	uid_t  ruid;
 	char *full_path;
 
 	/*
 	 * We use pfind() to check that the program exists and is an executable.
 	 * If not pass the error up.  Also execve() wants a full path.
-	 */ 
+	 */
 	full_path = pfind(path, envp);
 	if (full_path == NULL) {
 		fprintf(stderr, "Unable to find full path for \"%s\"\n", (path) ? path : "");
@@ -61,10 +61,12 @@ pid_t exec_pty(const char *path, char *const argv[], char *const envp[], const c
 
 		/* child */
 
-		if(!console && euid > 0) {
-			gid_t gid = getgrnam("tty");
-			if (chown(pts_name, euid, gid) != 0 ||
-					    chmod(pts_name, S_IRUSR | S_IWUSR | S_IWGRP) != 0) {
+		if(!console && euid > -1) {
+			uid_t teuid = geteuid();
+			struct group* gr = getgrnam("tty");
+			if (teuid != (uid_t)euid && (
+					chown(pts_name, (uid_t)euid, gr->gr_gid) != 0 ||
+					chmod(pts_name, S_IRUSR | S_IWUSR | S_IWGRP) != 0)) {
 				fprintf(stderr, "%s(%d): failed to chown or chmod %s. %s\n", __FUNCTION__, __LINE__, pts_name, strerror(errno));
 				free(full_path);
 				return -1;
@@ -106,6 +108,9 @@ pid_t exec_pty(const char *path, char *const argv[], char *const envp[], const c
 				return -1;
 			}
 		}
+		else {
+			set_tty(fds);
+		}
 
 		/* redirections */
 		dup2(fds, STDIN_FILENO);   /* dup stdin */
@@ -117,7 +122,7 @@ pid_t exec_pty(const char *path, char *const argv[], char *const envp[], const c
 
 		/* Close all the fd's in the child */
 		{
-			int fdlimit = sysconf(_SC_OPEN_MAX);
+			long int fdlimit = sysconf(_SC_OPEN_MAX);
 			int fd = 3;
 
 			while (fd < fdlimit)

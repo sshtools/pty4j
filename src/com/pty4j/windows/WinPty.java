@@ -3,7 +3,6 @@ package com.pty4j.windows;
 import com.pty4j.Lib;
 import com.pty4j.PtyException;
 import com.pty4j.WinSize;
-import com.pty4j.util.PtyUtil;
 import com.sun.jna.*;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
@@ -251,7 +250,7 @@ public class WinPty {
     }
   }
 
-  public static final Kern32 KERNEL32 = (Kern32)Native.loadLibrary("kernel32", Kern32.class);
+  public static final Kern32 KERNEL32 = Native.loadLibrary("kernel32", Kern32.class);
 
   interface Kern32 extends Library {
     boolean PeekNamedPipe(WinNT.HANDLE hFile,
@@ -291,7 +290,7 @@ public class WinPty {
     int GetCurrentProcessId();
   }
 
-  public static WinPtyLib INSTANCE = (WinPtyLib)Native.loadLibrary(Lib.locateLibrary(), WinPtyLib.class);
+  public static WinPtyLib INSTANCE = Native.loadLibrary(Lib.locateLibrary(), WinPtyLib.class);
 
   interface WinPtyLib extends Library {
     /*

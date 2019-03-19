@@ -3,11 +3,12 @@ package com.pty4j.windows;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.ptr.IntByReference;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.pty4j.windows.WinPty.KERNEL32;
@@ -98,10 +99,10 @@ public class NamedPipe {
       readOver.write();
       readActual.setValue(0);
       boolean success = KERNEL32.ReadFile(myHandle, readBuffer, len, readActual, readOver.getPointer());
-      if (!success && Native.getLastError() == WinNT.ERROR_IO_PENDING) {
+      if (!success && Native.getLastError() == WinError.ERROR_IO_PENDING) {
         int waitRet = Kernel32.INSTANCE.WaitForMultipleObjects(
-                readWaitHandles.length, readWaitHandles, false, WinNT.INFINITE);
-        if (waitRet != WinNT.WAIT_OBJECT_0) {
+                readWaitHandles.length, readWaitHandles, false, WinBase.INFINITE);
+        if (waitRet != WinBase.WAIT_OBJECT_0) {
           KERNEL32.CancelIo(myHandle);
         }
         success = KERNEL32.GetOverlappedResult(myHandle, readOver.getPointer(), readActual, true);
@@ -147,10 +148,10 @@ public class NamedPipe {
       writeOver.write();
       writeActual.setValue(0);
       boolean success = KERNEL32.WriteFile(myHandle, writeBuffer, len, writeActual, writeOver.getPointer());
-      if (!success && Native.getLastError() == WinNT.ERROR_IO_PENDING) {
+      if (!success && Native.getLastError() == WinError.ERROR_IO_PENDING) {
         int waitRet = Kernel32.INSTANCE.WaitForMultipleObjects(
-                writeWaitHandles.length, writeWaitHandles, false, WinNT.INFINITE);
-        if (waitRet != WinNT.WAIT_OBJECT_0) {
+                writeWaitHandles.length, writeWaitHandles, false, WinBase.INFINITE);
+        if (waitRet != WinBase.WAIT_OBJECT_0) {
           KERNEL32.CancelIo(myHandle);
         }
         KERNEL32.GetOverlappedResult(myHandle, writeOver.getPointer(), writeActual, true);

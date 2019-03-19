@@ -196,7 +196,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<id>release</id>
@@ -210,7 +210,7 @@
 					<encoding>UTF-8</encoding>
 					
 					<!-- https://stackoverflow.com/questions/49472783/maven-is-unable-to-find-javadoc-command -->
-	   				<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+	   				<!-- <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable> -->
 	   				
 	   				<!-- https://bugs.openjdk.java.net/browse/JDK-8212233 -->
 	   				<source>8</source>
@@ -273,26 +273,26 @@
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>4.2.2</version>
+			<version>4.5.2</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna-platform</artifactId>
-			<version>4.2.2</version>
+			<version>4.5.2</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.github.purejavacomm</groupId>
 			<artifactId>purejavacomm</artifactId>
 			<version>1.0.2.RELEASE</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
 

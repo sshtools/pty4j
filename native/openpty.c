@@ -44,6 +44,19 @@ set_noecho(int fd)
 	tcsetattr(fd, TCSANOW, &stermios);
 }
 
+void
+set_tty(int fd)
+{
+	struct termios stermios;
+	if (tcgetattr(fd, &stermios) < 0) {
+		return ;
+	}
+
+	stermios.c_lflag |= (ISIG);
+
+	tcsetattr(fd, TCSANOW, &stermios);
+}
+
 int
 ptys_open(int fdm, const char *pts_name, bool acquire) {
 	int fds;

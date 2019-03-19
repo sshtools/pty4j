@@ -1,7 +1,5 @@
 package com.pty4j.unix;
 
-import jtermios.JTermios;
-
 /**
  * @author traff
  */
@@ -46,7 +44,7 @@ public class JnaPtyExecutor implements PtyExecutor {
 
       m_jpty.login_tty(fds);
 
-      if (JTermios.tcsetattr(fds, JTermios.TCSANOW, PtyHelpers.createTermios()) != 0) {
+      if (PtyHelpers.getInstance().tcsetattr(fds, PtyHelpers.TCSANOW, PtyHelpers.createTermios()) != 0) {
         return -1;
       }
 
@@ -104,9 +102,9 @@ public class JnaPtyExecutor implements PtyExecutor {
   }
 
   public static int ptySlaveOpen(int fdm, String pts_name) {
-    int fds = JTermios.open(pts_name, JTermios.O_RDWR);
+    int fds = PtyHelpers.getInstance().open(pts_name, PtyHelpers.O_RDWR);
     if (fds < 0) {
-      JTermios.close(fdm);
+    	PtyHelpers.getInstance().close(fdm);
       return -5;
     }
 

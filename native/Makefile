@@ -21,8 +21,8 @@ LD=libtool
 CPPFLAGS = -I.
 CFLAGS +=-fPIC -D_REENTRANT
 
-ARCH_FLAG_X86 = -arch i386
-ARCH_FLAG_X86_64 = -arch x86_64
+ARCH_FLAG_X86 = -march=i386
+ARCH_FLAG_X86_64 = -march=x86_64
 
 INSTALL_DIR_X86 = ../os/$(OS)/$(ARCH_X86)
 INSTALL_DIR_X86_64 = ../os/$(OS)/$(ARCH_X86_64)

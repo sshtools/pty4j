@@ -10,7 +10,7 @@ public class NativePtyExecutor implements PtyExecutor {
   private final Pty4J myPty4j;
 
   public NativePtyExecutor(String libname) {
-    myPty4j = (Pty4J) Native.loadLibrary(libname, Pty4J.class);
+    myPty4j = Native.loadLibrary(libname, Pty4J.class);
   }
 
   @Override

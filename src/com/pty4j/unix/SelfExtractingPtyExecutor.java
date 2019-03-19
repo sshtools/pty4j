@@ -8,7 +8,7 @@ public class SelfExtractingPtyExecutor implements PtyExecutor {
 	private final Pty4J myPty4j;
 
 	public SelfExtractingPtyExecutor() throws Exception {
-		myPty4j = (Pty4J) Native.loadLibrary(Lib.locateLibrary(), Pty4J.class);
+		myPty4j = Native.loadLibrary(Lib.locateLibrary(), Pty4J.class);
 	}
 
 	@Override

@@ -21,20 +21,18 @@
 package com.pty4j.unix;
 
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.google.common.collect.Lists;
 import com.pty4j.WinSize;
 import com.pty4j.util.PtyUtil;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Structure;
-import jtermios.JTermios;
-import jtermios.Termios;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**
@@ -150,6 +148,22 @@ public class PtyHelpers {
     int login_tty(int fd);
 
     void chdir(String dirpath);
+
+	int open(String path, int flags);
+
+	int read(int fd, byte[] buf, int len);
+
+	int write(int fd, byte[] buf, int len);
+
+    int poll(Pollfd fds[], int nfds, int timeout);
+    
+    int select(int nfds, FDSet rfds, FDSet wfds, FDSet efds, TimeVal timeout);
+
+	FDSet newFDSet();
+
+	int tcgetattr(int fd, Termios stermios);
+
+	int tcsetattr(int fd, int flags, Termios stermios);
   }
 
   // CONSTANTS
@@ -237,7 +251,6 @@ public class PtyHelpers {
 	  myPtyExecutor = new SelfExtractingPtyExecutor();
 	}
 	catch(Exception e) {
-		e.printStackTrace();
 	    try {
 	      File lib = PtyUtil.resolveNativeLibrary();
 	      myPtyExecutor = new NativePtyExecutor(lib.getAbsolutePath());
@@ -263,12 +276,12 @@ public class PtyHelpers {
     Termios term = new Termios();
 
     boolean isUTF8 = true;
-    term.c_iflag = JTermios.ICRNL | JTermios.IXON | JTermios.IXANY | IMAXBEL | JTermios.BRKINT | (isUTF8 ? IUTF8 : 0);
-    term.c_oflag = JTermios.OPOST | ONLCR;
-    term.c_cflag = JTermios.CREAD | JTermios.CS8 | HUPCL;
-    term.c_lflag = JTermios.ICANON | JTermios.ISIG | JTermios.IEXTEN | JTermios.ECHO | JTermios.ECHOE | ECHOK | ECHOKE | ECHOCTL;
+    term.c_iflag = PtyHelpers.ICRNL | PtyHelpers.IXON | PtyHelpers.IXANY | IMAXBEL | PtyHelpers.BRKINT | (isUTF8 ? IUTF8 : 0);
+    term.c_oflag = PtyHelpers.OPOST | ONLCR;
+    term.c_cflag = PtyHelpers.CREAD | PtyHelpers.CS8 | HUPCL;
+    term.c_lflag = PtyHelpers.ICANON | PtyHelpers.ISIG | PtyHelpers.IEXTEN | PtyHelpers.ECHO | PtyHelpers.ECHOE | ECHOK | ECHOKE | ECHOCTL;
 
-    term.c_cc[JTermios.VEOF] = CTRLKEY('D');
+    term.c_cc[PtyHelpers.VEOF] = CTRLKEY('D');
 //    term.c_cc[VEOL] = -1;
 //    term.c_cc[VEOL2] = -1;
     term.c_cc[VERASE] = 0x7f;           // DEL
@@ -279,16 +292,16 @@ public class PtyHelpers {
     term.c_cc[VQUIT] = 0x1c;           // Control+backslash
     term.c_cc[VSUSP] = CTRLKEY('Z');
 //    term.c_cc[VDSUSP] = CTRLKEY('Y');
-    term.c_cc[JTermios.VSTART] = CTRLKEY('Q');
-    term.c_cc[JTermios.VSTOP] = CTRLKEY('S');
+    term.c_cc[PtyHelpers.VSTART] = CTRLKEY('Q');
+    term.c_cc[PtyHelpers.VSTOP] = CTRLKEY('S');
 //    term.c_cc[VLNEXT] = CTRLKEY('V');
 //    term.c_cc[VDISCARD] = CTRLKEY('O');
 //    term.c_cc[VMIN] = 1;
 //    term.c_cc[VTIME] = 0;
 //    term.c_cc[VSTATUS] = CTRLKEY('T');
 
-    term.c_ispeed = JTermios.B38400;
-    term.c_ospeed = JTermios.B38400;
+    term.c_ispeed = PtyHelpers.B38400;
+    term.c_ospeed = PtyHelpers.B38400;
 
     return term;
   }
@@ -457,4 +470,74 @@ public class PtyHelpers {
       winSize.ws_ypixel = ws_ypixel;
     }
   }
+
+public final static int O_RDWR = 0x00000002;
+
+public final static int O_NONBLOCK = 0x00000004;
+
+public final static int O_NOCTTY = 0x00020000;
+
+public final static int TCSANOW = 0x00000000;
+
+public final static int IGNCR = 0x00000080;
+
+public final static int BRKINT = 0x00000002;
+
+public final static int ECHO = 0x00000008;
+
+public final static int ECHOE = 0x00000002;
+
+public final static int ECHONL = 0x00000010;
+
+public final static int IXON = 0x00000200;
+
+public final static int IXOFF = 0x00000400;
+
+public final static int IXANY = 0x00000800;
+
+public final static int ICRNL = 0x00000100;
+
+public final static int ICANON = 0x00000100;
+
+public final static int ISIG = 0x00000080;
+
+public final static int IEXTEN = 0x00000400;
+
+public final static int OPOST = 0x00000001;
+
+public final static int CS8 = 0x00000300;
+
+public final static int CREAD = 0x00000800;
+
+public final static int VEOF = 0x00000000;
+
+public final static int VSTART = 0x0000000C;
+
+public final static int VSTOP = 0x0000000D;
+
+public final static int B38400 = 38400;
+
+// poll.h
+public static short POLLIN = 0x0001;
+
+// errno.h
+public static int EINTR = 4;
+
+public static int EAGAIN = 35;
+
+static public void FD_SET(int fd, FDSet set) {
+	if (set != null)
+		set.FD_SET(fd);
+}
+
+static public void FD_CLR(int fd, FDSet set) {
+	if (set != null)
+		set.FD_CLR(fd);
+}
+
+static public boolean FD_ISSET(int fd, FDSet set) {
+	if (set == null)
+		return false;
+	return set.FD_ISSET(fd);
+}
 }
